@@ -1,0 +1,56 @@
+/// <reference types="cypress" />
+const primaryBorrower = {
+  firstName: 'Sarah',
+  lastName: 'Connor',
+  email: 'colatestsarahconnor' + new Date().getTime() + '@mailinator.com',
+  ssn: '999606666',
+  dob: '12/29/1980',
+  cellPhone: '1234567890',
+  homePhone: '8888888888',
+  workPhone: '9999999999',
+  electronicConsent: true
+};
+
+const userCredentials = {
+  email: 'abc123alicefracb@mailinator.com',
+  password: 'Test123#'
+};
+
+const invalidEmailAddress = '123';
+
+describe('/signin', () => {
+  beforeEach(() => {
+    cy.visit('/signin');
+  });
+
+  it('email is required', () => {
+    cy.get('input[name="password"]').type(userCredentials.password);
+    cy.get('button[type="submit"]').click();
+    cy.get('.invalid-feedback').should('contain', 'Please fill in the required fields');
+  });
+  it('email should have right format', () => {
+    cy.get('input[name="password"]').type(invalidEmailAddress);
+    cy.get('button[type="submit"]').click();
+    cy.get('.invalid-feedback').should('contain', 'Please use email address');
+  });
+
+  it('password is required', () => {
+    cy.get('input[name="email"]').type(userCredentials.email);
+    cy.get('button[type="submit"]').click();
+    cy.get('.invalid-feedback').should('contain', 'Please fill in the required fields');
+  });
+
+  it('requires valid credentials', () => {
+    cy.get('input[name="email"]').type('invalid');
+    cy.get('input[name="password"]').type('invalid');
+    cy.get('button[type="submit"]').click();
+    cy.contains(`The email/username or password couldn't be validated.`);
+  });
+
+  it('valid credentials redirect to dashboard', () => {
+    cy.get('input[name="email"]').type(userCredentials.email);
+    cy.get('input[name="password"]').type(userCredentials.password);
+    cy.get('button[type="submit"]').click();
+    cy.url().should('contain', '/dashboard');
+  });
+});
